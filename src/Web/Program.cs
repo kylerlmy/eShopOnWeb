@@ -1,19 +1,20 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
-using Infrastructure.Data;
+using Microsoft.eShopWeb.Infrastructure.Data;
 using System;
 using Microsoft.Extensions.Logging;
-using Infrastructure.Identity;
+using Microsoft.eShopWeb.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 
-namespace Microsoft.eShopWeb
+namespace Microsoft.eShopWeb.Web
 {
     public class Program
     {
         public static void Main(string[] args)
         {
-            var host = BuildWebHost(args);
+            var host = CreateWebHostBuilder(args)
+                        .Build();
 
             using (var scope = host.Services.CreateScope())
             {
@@ -38,10 +39,9 @@ namespace Microsoft.eShopWeb
             host.Run();
         }
 
-        public static IWebHost BuildWebHost(string[] args) =>
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseUrls("http://0.0.0.0:5106")
-                .UseStartup<Startup>()
-                .Build();
+                .UseStartup<Startup>();
     }
 }

@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
-using Infrastructure.Data;
-using Infrastructure.Identity;
+using Microsoft.eShopWeb.Infrastructure.Data;
+using Microsoft.eShopWeb.Infrastructure.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Identity;
 
@@ -13,7 +13,8 @@ namespace Microsoft.eShopWeb.RazorPages
     {
         public static void Main(string[] args)
         {
-            var host = BuildWebHost(args);
+            var host = CreateWebHostBuilder(args)
+                        .Build();
 
             using (var scope = host.Services.CreateScope())
             {
@@ -38,10 +39,9 @@ namespace Microsoft.eShopWeb.RazorPages
             host.Run();
         }
 
-        public static IWebHost BuildWebHost(string[] args) =>
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseUrls("http://0.0.0.0:5106")
-                .UseStartup<Startup>()
-                .Build();
+                .UseUrls("http://0.0.0.0:5107")
+                .UseStartup<Startup>();
     }
 }

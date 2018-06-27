@@ -1,17 +1,15 @@
-﻿using ApplicationCore.Interfaces;
-using Infrastructure.Identity;
+﻿using Microsoft.eShopWeb.ApplicationCore.Interfaces;
+using Microsoft.eShopWeb.Infrastructure.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.eShopWeb.ViewModels.Account;
+using Microsoft.eShopWeb.Web.ViewModels.Account;
 using System;
 using System.Threading.Tasks;
-using Web.ViewModels.Account;
 
-namespace Microsoft.eShopWeb.Controllers
+namespace Microsoft.eShopWeb.Web.Controllers
 {
-
     [Route("[controller]/[action]")]
     [Authorize]
     public class AccountController : Controller
@@ -41,7 +39,7 @@ namespace Microsoft.eShopWeb.Controllers
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
             ViewData["ReturnUrl"] = returnUrl;
-            if (!String.IsNullOrEmpty(returnUrl) && 
+            if (!String.IsNullOrEmpty(returnUrl) &&
                 returnUrl.IndexOf("checkout", StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 ViewData["ReturnUrl"] = "/Basket/Index";

@@ -1,9 +1,9 @@
-using ApplicationCore.Interfaces;
-using ApplicationCore.Services;
-using Infrastructure.Data;
-using Infrastructure.Identity;
-using Infrastructure.Logging;
-using Infrastructure.Services;
+using Microsoft.eShopWeb.ApplicationCore.Interfaces;
+using Microsoft.eShopWeb.ApplicationCore.Services;
+using Microsoft.eShopWeb.Infrastructure.Data;
+using Microsoft.eShopWeb.Infrastructure.Identity;
+using Microsoft.eShopWeb.Infrastructure.Logging;
+using Microsoft.eShopWeb.Infrastructure.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -107,6 +107,7 @@ namespace Microsoft.eShopWeb.RazorPages
             services.AddMemoryCache();
 
             services.AddMvc()
+                .SetCompatibilityVersion(AspNetCore.Mvc.CompatibilityVersion.Version_2_1)
                 .AddRazorPagesOptions(options =>
                 {
                     options.Conventions.AuthorizeFolder("/Order");
@@ -123,15 +124,16 @@ namespace Microsoft.eShopWeb.RazorPages
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseBrowserLink();
                 ListAllRegisteredServices(app);
                 app.UseDatabaseErrorPage();
             }
             else
             {
                 app.UseExceptionHandler("/Catalog/Error");
+                app.UseHsts();
             }
 
+            app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseAuthentication();
 

@@ -1,11 +1,12 @@
-﻿using ApplicationCore.Interfaces;
+﻿using Microsoft.eShopWeb.ApplicationCore.Interfaces;
 using System.Threading.Tasks;
 using Microsoft.eShopWeb.ApplicationCore.Entities;
 using System.Linq;
 using System.Collections.Generic;
-using ApplicationCore.Specifications;
+using Microsoft.eShopWeb.ApplicationCore.Specifications;
 using Microsoft.eShopWeb.RazorPages.Interfaces;
 using Microsoft.eShopWeb.RazorPages.ViewModels;
+using Microsoft.eShopWeb.ApplicationCore.Entities.BasketAggregate;
 
 namespace Microsoft.eShopWeb.RazorPages.Services
 {

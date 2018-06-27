@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.eShopWeb.ViewModels;
+using Microsoft.eShopWeb.Web.ViewModels;
 using System;
-using ApplicationCore.Entities.OrderAggregate;
-using ApplicationCore.Interfaces;
+using Microsoft.eShopWeb.ApplicationCore.Entities.OrderAggregate;
+using Microsoft.eShopWeb.ApplicationCore.Interfaces;
 using System.Linq;
-using ApplicationCore.Specifications;
+using Microsoft.eShopWeb.ApplicationCore.Specifications;
 
-namespace Microsoft.eShopWeb.Controllers
+namespace Microsoft.eShopWeb.Web.Controllers
 {
     [Authorize]
     [Route("[controller]/[action]")]
@@ -49,7 +49,12 @@ namespace Microsoft.eShopWeb.Controllers
         [HttpGet("{orderId}")]
         public async Task<IActionResult> Detail(int orderId)
         {
-            var order = await _orderRepository.GetByIdWithItemsAsync(orderId);
+            var customerOrders = await _orderRepository.ListAsync(new CustomerOrdersWithItemsSpecification(User.Identity.Name));
+            var order = customerOrders.FirstOrDefault(o => o.Id == orderId);
+            if (order == null)
+            {
+                return BadRequest("No such order found for this user.");
+            }
             var viewModel = new OrderViewModel()
             {
                 OrderDate = order.OrderDate,
@@ -68,29 +73,6 @@ namespace Microsoft.eShopWeb.Controllers
                 Total = order.Total()
             };
             return View(viewModel);
-        }
-
-        private OrderViewModel GetOrder()
-        {
-            var order = new OrderViewModel()
-            {
-                OrderDate = DateTimeOffset.Now.AddDays(-1),
-                OrderNumber = 12354,
-                Status = "Submitted",
-                Total = 123.45m,
-                ShippingAddress = new Address("123 Main St.", "Kent", "OH", "United States", "44240")
-            };
-
-            order.OrderItems.Add(new OrderItemViewModel()
-            {
-                ProductId = 1,
-                PictureUrl = "",
-                ProductName = "Something",
-                UnitPrice = 5.05m,
-                Units = 2
-            });
-
-            return order;
         }
     }
 }

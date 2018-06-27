@@ -1,22 +1,22 @@
-﻿using ApplicationCore.Interfaces;
-using ApplicationCore.Services;
-using Infrastructure.Data;
-using Infrastructure.Identity;
-using Infrastructure.Logging;
-using Infrastructure.Services;
+﻿using Microsoft.eShopWeb.ApplicationCore.Interfaces;
+using Microsoft.eShopWeb.ApplicationCore.Services;
+using Microsoft.eShopWeb.Infrastructure.Data;
+using Microsoft.eShopWeb.Infrastructure.Identity;
+using Microsoft.eShopWeb.Infrastructure.Logging;
+using Microsoft.eShopWeb.Infrastructure.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.eShopWeb.Interfaces;
-using Microsoft.eShopWeb.Services;
+using Microsoft.eShopWeb.Web.Interfaces;
+using Microsoft.eShopWeb.Web.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Text;
 
-namespace Microsoft.eShopWeb
+namespace Microsoft.eShopWeb.Web
 {
     public class Startup
     {
@@ -31,16 +31,16 @@ namespace Microsoft.eShopWeb
         public void ConfigureDevelopmentServices(IServiceCollection services)
         {
             // use in-memory database
-            ConfigureTestingServices(services);
+            ConfigureInMemoryDatabases(services);
 
             // use real database
             // ConfigureProductionServices(services);
-
         }
-        public void ConfigureTestingServices(IServiceCollection services)
+
+        private void ConfigureInMemoryDatabases(IServiceCollection services)
         {
             // use in-memory database
-            services.AddDbContext<CatalogContext>(c => 
+            services.AddDbContext<CatalogContext>(c =>
                 c.UseInMemoryDatabase("Catalog"));
 
             // Add Identity DbContext
@@ -53,19 +53,10 @@ namespace Microsoft.eShopWeb
         public void ConfigureProductionServices(IServiceCollection services)
         {
             // use real database
+            // Requires LocalDB which can be installed with SQL Server Express 2016
+            // https://www.microsoft.com/en-us/download/details.aspx?id=54284
             services.AddDbContext<CatalogContext>(c =>
-            {
-                try
-                {
-                    // Requires LocalDB which can be installed with SQL Server Express 2016
-                    // https://www.microsoft.com/en-us/download/details.aspx?id=54284
-                    c.UseSqlServer(Configuration.GetConnectionString("CatalogConnection"));
-                }
-                catch (System.Exception ex)
-                {
-                    var message = ex.Message;
-                }
-            });
+                c.UseSqlServer(Configuration.GetConnectionString("CatalogConnection")));
 
             // Add Identity DbContext
             services.AddDbContext<AppIdentityDbContext>(options =>
@@ -86,6 +77,10 @@ namespace Microsoft.eShopWeb
                 options.ExpireTimeSpan = TimeSpan.FromHours(1);
                 options.LoginPath = "/Account/Signin";
                 options.LogoutPath = "/Account/Signout";
+                options.Cookie = new CookieBuilder
+                {
+                    IsEssential = true // required for auth to work without explicit user consent; adjust to suit your privacy policy
+                };
             });
 
             services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
@@ -106,27 +101,29 @@ namespace Microsoft.eShopWeb
             // Add memory cache services
             services.AddMemoryCache();
 
-            services.AddMvc();
+            services.AddMvc()
+                .SetCompatibilityVersion(AspNetCore.Mvc.CompatibilityVersion.Version_2_1);
 
             _services = services;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, 
+        public void Configure(IApplicationBuilder app,
             IHostingEnvironment env)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseBrowserLink();
                 ListAllRegisteredServices(app);
                 app.UseDatabaseErrorPage();
             }
             else
             {
                 app.UseExceptionHandler("/Catalog/Error");
+                app.UseHsts();
             }
 
+            app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseAuthentication();
 
